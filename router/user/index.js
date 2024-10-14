@@ -10,20 +10,20 @@ let router = express.Router();
 router.get("/");
 
 // Helper function to validate email format
-const validateEmail = (email) => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+let validateEmail = (email) => {
+  let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 };
 
 // Helper function to validate password format
-const validatePassword = (password) => {
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+let validatePassword = (password) => {
+  let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
   return passwordRegex.test(password);
 };
 
 router.post("/register", async (req, res) => {
   try {
-    const { email, password, name, phone, profilePicture } = req.body;
+    let { email, password, name, phone, profilePicture } = req.body;
     if (!validateEmail(email)) {
       return res.status(400).json({ message: "Invalid email format" });
     }
@@ -33,19 +33,19 @@ router.post("/register", async (req, res) => {
           "Password must be at least 8 characters long, contain at least 1 lowercase letter, 1 uppercase letter, 1 digit, and 1 special character",
       });
     }
-    const existingUser = await User.findOne({ where: { email } });
+    let existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
       return res.status(400).json({ message: "Email already in use" });
     }
 
-    const user = await User.create({
+    let user = await User.create({
       email,
       password,
       name,
       phone,
       profilePicture,
     });
-    const token = generateToken(user);
+    let token = generateToken(user);
     res.status(201).json({ user, token });
   } catch (error) {
     console.error("Registration error:", error);
@@ -55,13 +55,13 @@ router.post("/register", async (req, res) => {
 
 router.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
     // return res.send({ email, password });
-    const user = await User.findOne({ where: { email } });
+    let user = await User.findOne({ where: { email } });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
-    const token = generateToken(user);
+    let token = generateToken(user);
     res.json({ user, token });
   } catch (error) {
     console.error("Login error:", error);

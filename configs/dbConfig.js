@@ -4,17 +4,19 @@ import RestaurantModel from "../models/Restaurant.js";
 import MenuModel from "../models/Menu.js";
 import RatingModel from "../models/Rating.js";
 import BookingModel from "../models/Booking.js";
+import TablesModel from "../models/Tables.js";
 
 // Option 1: Passing a connection URI
 export let sequelize = new Sequelize(
   "postgres://postgres:root@localhost:5432/bookMySeat"
-); 
+);
 
 export let User = UserModel(sequelize);
 export let Restaurant = RestaurantModel(sequelize);
 export let Menu = MenuModel(sequelize);
 export let Rating = RatingModel(sequelize);
 export let Booking = BookingModel(sequelize);
+export let Tables = TablesModel(sequelize);
 
 Restaurant.hasMany(Menu);
 Menu.belongsTo(Restaurant);
@@ -22,12 +24,16 @@ Menu.belongsTo(Restaurant);
 Restaurant.hasMany(Rating);
 Menu.hasMany(Rating);
 
-User.hasMany(Booking)
-Booking.belongsTo(User)
+User.hasMany(Booking);
+Booking.belongsTo(User);
 
-Restaurant.hasMany(Booking)
-Booking.belongsTo(Restaurant)
+Restaurant.hasMany(Booking);
+Booking.belongsTo(Restaurant);
 
+Restaurant.hasMany(Tables);
+Tables.belongsTo(Restaurant);
+Tables.hasMany(Booking);
+Booking.belongsTo(Tables);
 
 Rating.belongsTo(Restaurant, {
   as: "restaurant",
