@@ -40,10 +40,11 @@ export default (sequelize) => {
         allowNull: false,
       },
     },
+
     {
       hooks: {
-        afterFind: (instances, options) => {
-          const addBaseUrl = (instance) => {
+        afterFind: async(instances, options) => {
+          const addBaseUrl = async(instance) => {
             instance.images = instance.images.map(
               (image) => `${process.env.BASE_URL}/public/${image}`
             );
@@ -51,7 +52,7 @@ export default (sequelize) => {
           };
 
           if (Array.isArray(instances)) {
-            return instances.map(addBaseUrl);
+            return Promise.all(instances.map(addBaseUrl));
           }
           if (instances) return addBaseUrl(instances);
         },

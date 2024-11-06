@@ -6,7 +6,7 @@ import { authenticate } from "../middleware/auth.js";
 
 let router = express.Router()
 
-router.use("/booking",bookingRouter )
+router.use("/bookings",bookingRouter )
 router.use("/user", userRouter)
 router.use("/restaurants", restaurantRouter)
 router.get("/", authenticate, (req, res) =>{
