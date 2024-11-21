@@ -43,11 +43,11 @@ export default (sequelize) => {
             user.password = await bcrypt.hash(user.password, 10);
           }
         },
-        afterFind: (instance, options) => {
-          if (instance) {
-            instance.profilePicture = `${process.env.BASE_URL}/public/${instance?.profilePicture}`;
-          }
-        },
+        // afterFind: (instance, options) => {
+        //   if (instance) {
+        //     instance.profilePicture = `${process.env.BASE_URL}/public/${instance?.profilePicture}`;
+        //   }
+        // },
       },
       instanceMethods: {
         validatePassword: async function (password) {

@@ -41,23 +41,23 @@ export default (sequelize) => {
       },
     },
 
-    {
-      hooks: {
-        afterFind: async(instances, options) => {
-          const addBaseUrl = async(instance) => {
-            instance.images = instance.images.map(
-              (image) => `${process.env.BASE_URL}/public/${image}`
-            );
-            return instance;
-          };
+    // {
+    //   hooks: {
+    //     afterFind: async(instances, options) => {
+    //       const addBaseUrl = async(instance) => {
+    //         instance.images = instance.images.map(
+    //           (image) => `${process.env.BASE_URL}/public/${image}`
+    //         );
+    //         return instance;
+    //       };
 
-          if (Array.isArray(instances)) {
-            return Promise.all(instances.map(addBaseUrl));
-          }
-          if (instances) return addBaseUrl(instances);
-        },
-      },
-    }
+    //       if (Array.isArray(instances)) {
+    //         return Promise.all(instances.map(addBaseUrl));
+    //       }
+    //       if (instances) return addBaseUrl(instances);
+    //     },
+    //   },
+    // }
   );
 
   return Restaurant;
