@@ -14,7 +14,7 @@ const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
   mode: 'production',
-  entry: './src/app.js',
+  entry: './netlify/functions/app.js',
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'app.cjs',
