@@ -20,7 +20,4 @@ from = "/*"
 status = 200
 to = "/.netlify/functions/app/:splat"
 
-[build]
-  command = "npm run build"             # Command to build your app (if applicable)
-  functions = "netlify/functions"       # Directory for Netlify Functions
-  publish = "public"  
+
