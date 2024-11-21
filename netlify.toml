@@ -16,6 +16,11 @@ external_node_modules = [
 node_bundler = "esbuild"
 [[redirects]]
 force = true
-from = "/api/*"
+from = "/*"
 status = 200
-to = "/.netlify/functions/api/:splat"
+to = "/.netlify/functions/app/:splat"
+
+[build]
+  command = "npm run build"             # Command to build your app (if applicable)
+  functions = "netlify/functions"       # Directory for Netlify Functions
+  publish = "public"  

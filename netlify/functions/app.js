@@ -1,9 +1,9 @@
 import express from "express";
-import { sequelize, User } from "./configs/dbConfig.js";
+import { sequelize, User } from "../../src/configs/dbConfig.js";
 import path from "path";
 import bodyParser from "body-parser";
 import "dotenv/config";
-import router from "./router/router.js";
+import router from "../../src/router/router.js";
 import cors from "cors"
 import serverless from "serverless-http";
 
@@ -31,7 +31,7 @@ app.get("/", (req, res, next) => {
   });
 });
 
-app.use("/.netlify/functions/api", router);
+app.use("/api", router);
 
 // app.get("/", async(req, res, next) => {
 //     try {
