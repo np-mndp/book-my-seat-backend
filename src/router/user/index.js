@@ -3,7 +3,7 @@ import express from "express";
 import { User } from "../../configs/dbConfig.js";
 import { generateToken } from "../../utils/jwtUtils.js";
 import { authenticate } from "../../middleware/auth.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 let router = express.Router();
 
