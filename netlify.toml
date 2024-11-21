@@ -18,4 +18,4 @@ node_bundler = "esbuild"
 force = true
 from = "/api/*"
 status = 200
-to = "/src/app/:splat"
+to = "/.netlify/functions/api/:splat"

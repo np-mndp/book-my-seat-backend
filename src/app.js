@@ -31,7 +31,7 @@ app.get("/", (req, res, next) => {
   });
 });
 
-app.use("/api/", router);
+app.use("/.netlify/functions/api", router);
 
 // app.get("/", async(req, res, next) => {
 //     try {
