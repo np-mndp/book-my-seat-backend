@@ -5,6 +5,7 @@ import bodyParser from "body-parser";
 import "dotenv/config";
 import router from "./router/router.js";
 import cors from "cors"
+import serverless from "serverless-http";
 
 
 // let router = require("./routes/index.js");
@@ -60,6 +61,8 @@ async function startServer() {
 
 startServer();
 
+export const handler = serverless(app);
+
 // app.use(router.routes());
 
 // app.use(router);
@@ -68,3 +71,18 @@ startServer();
 // app.listen(PORT, () => {
 //   console.log(`Server is running on http://127.0.0.1:${PORT}`);
 // });
+
+
+// // YOUR_BASE_DIRECTORY/netlify/functions/api.ts
+
+// import express, { Router } from "express";
+
+
+// const api = express();
+
+// const router = Router();
+// router.get("/hello", (req, res) => res.send("Hello World!"));
+
+// api.use("/api/", router);
+
+// export const handler = serverless(api);
