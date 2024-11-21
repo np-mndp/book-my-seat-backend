@@ -1,8 +1,21 @@
 [functions]
-  external_node_modules = ["express"]
-  node_bundler = "esbuild"
+external_node_modules = [
+"bcrypt",
+"body-parser",
+"cors",
+"dotenv",
+"express",
+"jsonwebtoken",
+"nodemon",
+"pg",
+"pg-hstore",
+"react-native-geolocation-service",
+"sequelize",
+"serverless-http",
+]
+node_bundler = "esbuild"
 [[redirects]]
-  force = true
-  from = "/api/*"
-  status = 200
-  to = "/.netlify/functions/api/:splat"
+force = true
+from = "/api/*"
+status = 200
+to = "/src/app/:splat"
