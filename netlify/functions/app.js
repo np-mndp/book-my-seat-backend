@@ -51,9 +51,9 @@ async function startServer() {
     await sequelize.authenticate();
     console.log("Database connection has been established successfully.");
     await sequelize.sync();
-    // app.listen(PORT, () => {
-    //   console.log(`Server is running on http://127.0.0.1:${PORT}`);
-    // });
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://127.0.0.1:${PORT}`);
+    });
   } catch (error) {
     console.error("Unable to start the server:", error);
   }
