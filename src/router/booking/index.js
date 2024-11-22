@@ -23,11 +23,11 @@ router.get("/", authenticate, async (req, res) => {
     ],
   });
 
-  bookings.forEach((booking) => {
-    if (booking.Restaurant) {
-      booking.Restaurant.images = `${process.env.BASE_URL}/public/${booking.Restaurant.images[0]}`;
-    }
-  });
+  // bookings.forEach((booking) => {
+  //   if (booking.Restaurant) {
+  //     booking.Restaurant.images = `${process.env.BASE_URL}/public/${booking.Restaurant.images[0]}`;
+  //   }
+  // });
 
   console.log(bookings);
 
