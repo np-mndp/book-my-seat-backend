@@ -16,9 +16,7 @@ router.get("/", authenticate, async (req, res) => {
         model: Restaurant,
         // as: 'restaurant',
         attributes: ["id", "title", "location", "images"],
-        hooks: {
-          afterFind: true,
-        },
+       
       },
     ],
   });
@@ -29,7 +27,7 @@ router.get("/", authenticate, async (req, res) => {
   //   }
   // });
 
-  console.log(bookings);
+  // console.log(bookings);
 
   return res.json(bookings);
 });
