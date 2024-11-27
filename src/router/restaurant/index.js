@@ -1,21 +1,67 @@
 import express from "express";
-import { Restaurant } from "../../configs/dbConfig.js"; // Assuming your database setup is in this file
+import { Restaurant, sequelize } from "../../configs/dbConfig.js"; // Assuming your database setup is in this file
 import { Sequelize } from "sequelize";
-import tablesRouter from "./tables/index.js"
+import tablesRouter from "./tables/index.js";
 // let  = db;
 
-let router = express.Router();
+const router = express.Router();
+
+const haversineQuery = (latitude, longitude, radius) => `
+  (6371 * acos(
+    cos(radians(${latitude})) * 
+    cos(radians((location->>'lat')::double precision)) * 
+    cos(radians((location->>'lng')::double precision) - radians(${longitude})) + 
+    sin(radians(${latitude})) * 
+    sin(radians((location->>'lat')::double precision))
+  )) < ${radius}
+`;
 
 // GET All Restaurants
 router.get("/", async (req, res) => {
   try {
-    let lat = req.query.lat;
-    let lng = req.query.lng;
-    // console.log(req.query);
+    const { lat, lng, radius } = req.query;
 
-    var restaurants;
-    if (lat != null && lng != null) {
-      restaurants = await Restaurant.findAll();
+    console.log({ lat, lng, radius });
+
+    let restaurants;
+    if (lat != null && lng != null && radius != null) {
+      // restaurants = await Restaurant.findAll();
+
+      restaurants = await Restaurant.findAll({
+        attributes: {
+          include: [
+            [
+              sequelize.literal(
+                `6371 * acos(cos(radians(${lat})) * cos(radians((location->>'lat')::double precision)) * cos(radians(${lng}) - radians((location->>'lng')::double precision)) + sin(radians(${lat})) * sin(radians((location->>'lat')::double precision)))`
+              ),
+              "distance",
+            ],
+          ],
+        },
+        order: sequelize.col("distance"),
+        group: ["Restaurant.id"], // Ensure to group by primary key or unique identifier
+        having: sequelize.literal(
+          `6371 * acos(cos(radians(${lat})) * cos(radians((location->>'lat')::double precision)) * cos(radians(${lng}) - radians((location->>'lng')::double precision)) + sin(radians(${lat})) * sin(radians((location->>'lat')::double precision))) < ${radius}`
+        ),
+        limit: 10,
+      });
+
+      // restaurants = await Restaurant.findAll({
+      //   where: sequelize.where(
+      //     sequelize.literal(
+      //       "6371 * acos(cos(radians(" +
+      //         lat +
+      //         ")) * cos(radians((location->>'lat')::double precision)) * cos(radians(" +
+      //         lng +
+      //         ") - radians((location->>'lng')::double precision)) + sin(radians(" +
+      //         lat +
+      //         ")) * sin(radians((location->>'lat')::double precision))) < 500"
+      //     )
+      //     // sequelize.literal(
+      //     //   `6371 * acos(cos(radians(${lat})) * cos(radians((location->>'lat')::double precision)) * cos(radians(${lng}) - radians((location->>'lng')::double precision)) + sin(radians(${lat})) * sin(radians((location->>'lat')::double precision))) < ${radius}`
+      //     // )
+      //   ),
+      // });
     } else {
       restaurants = await Restaurant.findAll();
     }
@@ -30,12 +76,12 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   try {
     let id = req.params.id;
-    
+
     let restaurant = await Restaurant.findByPk(id);
     if (!restaurant) {
       return res.status(404).json({ message: "Restaurant not found" });
     }
-    
+
     res.json(restaurant);
   } catch (error) {
     console.error("Error fetching restaurant:", error);
@@ -50,8 +96,6 @@ router.post("/", async (req, res) => {
     req.body.location = JSON.parse(req.body.location);
     req.body.images = JSON.parse(req.body.images);
     req.body.cousine = JSON.parse(req.body.cousine);
-
-
 
     let restaurant = await Restaurant.create(req.body);
     res.status(201).json(restaurant);
@@ -112,6 +156,6 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-router.use("/:restaurant_id/tables", tablesRouter)
+router.use("/:restaurant_id/tables", tablesRouter);
 
 export default router;

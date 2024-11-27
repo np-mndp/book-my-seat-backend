@@ -32,6 +32,10 @@ export default (sequelize) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      isManager: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false,
+      },
     },
     {
       hooks: {
