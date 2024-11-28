@@ -62,7 +62,6 @@ async function startServer() {
 startServer();
 
 export const handler = serverless(app);
-
 // app.use(router.routes());
 
 // app.use(router);

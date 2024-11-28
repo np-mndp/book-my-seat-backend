@@ -1,7 +1,8 @@
 import express from "express";
 import { Restaurant, sequelize } from "../../configs/dbConfig.js"; // Assuming your database setup is in this file
-import { Sequelize } from "sequelize";
 import tablesRouter from "./tables/index.js";
+import menuRouter from "./menu/index.js";
+
 // let  = db;
 
 const router = express.Router();
@@ -157,5 +158,6 @@ router.delete("/:id", async (req, res) => {
 });
 
 router.use("/:restaurant_id/tables", tablesRouter);
+router.use("/:restaurant_id/menu", menuRouter);
 
 export default router;
