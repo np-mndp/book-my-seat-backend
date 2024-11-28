@@ -3,6 +3,22 @@ import { Tables } from "../../../configs/dbConfig.js";
 
 let router = express.Router({ mergeParams: true });
 
+// Get all menu items
+router.get("/", async (req, res) => {
+  console.log(req.params);
+
+  try {
+    const tables = await Tables.findAll({
+      where: {
+        RestaurantId: req.params.restaurant_id,
+      },
+    });
+    res.status(200).json(tables);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Create a new table
 router.post("/", async (req, res) => {
   try {

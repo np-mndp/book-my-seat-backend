@@ -25,10 +25,11 @@
     "pg": "^8.13.0",
     "pg-hstore": "^2.3.4",
     "react-native-geolocation-service": "^5.3.1",
-    "sequelize": "^6.37.3",
+    "sequelize": "^6.37.5",
     "serverless-http": "^3.2.0"
   },
   "devDependencies": {
+    "sequelize-cli": "^6.6.2",
     "webpack": "^5.96.1",
     "webpack-cli": "^5.1.4",
     "webpack-node-externals": "^3.0.0"
