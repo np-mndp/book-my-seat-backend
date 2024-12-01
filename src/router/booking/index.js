@@ -1,35 +1,57 @@
 import express from "express";
-import { Booking, Restaurant, Tables } from "../../configs/dbConfig.js";
+import { Booking, Restaurant, Tables, User } from "../../configs/dbConfig.js";
 import { authenticate } from "../../middleware/auth.js";
 import { Op, where } from "sequelize";
 
 let router = express.Router({ mergeParams: true });
 
 router.get("/", authenticate, async (req, res) => {
-  let userId = req.user.id;
-  let bookings = await Booking.findAll({
-    where: {
-      UserId: userId,
-    },
-    include: [
-      {
-        model: Restaurant,
-        // as: 'restaurant',
-        attributes: ["id", "title", "location", "images"],
-       
-      },
-    ],
-  });
+  let bookings;
+  try {
+    if (req.user?.isManager) {
+      bookings = await Booking.findAll({
+        include: {
+          model: Restaurant,
+          attributes: ["title", "images"],
+          required: true,
+          include: {
+            model: User,
+            attributes: ["name"],
+            required: true,
+            where: {
+              id: req.user.id,
+            },
+          },
+        },
+      });
 
-  // bookings.forEach((booking) => {
-  //   if (booking.Restaurant) {
-  //     booking.Restaurant.images = `${process.env.BASE_URL}/public/${booking.Restaurant.images[0]}`;
-  //   }
-  // });
+      // bookings.forEach((booking) => {
+      //   if (booking.Restaurant) {
+      //     booking.Restaurant.images = `${process.env.BASE_URL}/public/${booking.Restaurant.images[0]}`;
+      //   }
+      // });
 
-  // console.log(bookings);
+      // console.log(bookings);
+    } else {
+      let userId = req.user.id;
+      bookings = await Booking.findAll({
+        where: {
+          UserId: userId,
+        },
+        include: [
+          {
+            model: Restaurant,
+            // as: 'restaurant',
+            attributes: ["id", "title", "location", "images"],
+          },
+        ],
+      });
+    }
 
-  return res.json(bookings);
+    return res.json(bookings);
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 router.post("/", authenticate, async (req, res) => {

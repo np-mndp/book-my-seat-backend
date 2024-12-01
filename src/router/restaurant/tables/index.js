@@ -1,5 +1,5 @@
 import express from "express";
-import { Tables } from "../../../configs/dbConfig.js";
+import { Restaurant, Tables } from "../../../configs/dbConfig.js";
 
 let router = express.Router({ mergeParams: true });
 
@@ -24,15 +24,26 @@ router.post("/", async (req, res) => {
   try {
     let { restaurant_id } = req.params;
     let { tables } = req.body;
+    const managerId = Restaurant.findOne({
+      where: {
+        id: req.params.restaurant_id,
+      },
+      attributes: ["ManagerId"],
+    });
+    if (req.user?.isManager) {
+      const updatedTables = tables.map((table) => ({
+        ...table,
+        RestaurantId: restaurant_id,
+      }));
 
-    const updatedTables = tables.map((table) => ({
-      ...table,
-      RestaurantId: restaurant_id,
-    }));
+      let newTable = await Tables.bulkCreate(updatedTables);
 
-    let newTable = await Tables.bulkCreate(updatedTables);
-
-    res.status(201).json(newTable);
+      res.status(201).json(newTable);
+    } else {
+      res
+        .status(401)
+        .json({ message: "You are not authorized to add a tables" });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
