@@ -2,49 +2,35 @@ import express from "express";
 import { Restaurant, sequelize } from "../../configs/dbConfig.js"; // Assuming your database setup is in this file
 import tablesRouter from "./tables/index.js";
 import menuRouter from "./menu/index.js";
+import { authenticate, isAuthenticated } from "../../middleware/auth.js";
+import { where } from "sequelize";
 
 // let  = db;
 
 const router = express.Router();
 
-const haversineQuery = (latitude, longitude, radius) => `
-  (6371 * acos(
-    cos(radians(${latitude})) * 
-    cos(radians((location->>'lat')::double precision)) * 
-    cos(radians((location->>'lng')::double precision) - radians(${longitude})) + 
-    sin(radians(${latitude})) * 
-    sin(radians((location->>'lat')::double precision))
-  )) < ${radius}
-`;
+// const haversineQuery = (latitude, longitude, radius) => `
+//   (6371 * acos(
+//     cos(radians(${latitude})) *
+//     cos(radians((location->>'lat')::double precision)) *
+//     cos(radians((location->>'lng')::double precision) - radians(${longitude})) +
+//     sin(radians(${latitude})) *
+//     sin(radians((location->>'lat')::double precision))
+//   )) < ${radius}
+// `;
 
 // GET All Restaurants
-router.get("/", async (req, res) => {
+router.get("/", isAuthenticated, async (req, res) => {
+  let restaurants;
+
   try {
-    const { lat, lng, radius } = req.query;
+    console.log(req.user);
 
-    console.log({ lat, lng, radius });
-
-    let restaurants;
-    if (lat != null && lng != null && radius != null) {
-      // restaurants = await Restaurant.findAll();
-
+    if (req.user?.isManager) {
       restaurants = await Restaurant.findAll({
-        attributes: {
-          include: [
-            [
-              sequelize.literal(
-                `6371 * acos(cos(radians(${lat})) * cos(radians((location->>'lat')::double precision)) * cos(radians(${lng}) - radians((location->>'lng')::double precision)) + sin(radians(${lat})) * sin(radians((location->>'lat')::double precision)))`
-              ),
-              "distance",
-            ],
-          ],
+        where: {
+          UserId: req.user.id,
         },
-        order: sequelize.col("distance"),
-        group: ["Restaurant.id"], // Ensure to group by primary key or unique identifier
-        having: sequelize.literal(
-          `6371 * acos(cos(radians(${lat})) * cos(radians((location->>'lat')::double precision)) * cos(radians(${lng}) - radians((location->>'lng')::double precision)) + sin(radians(${lat})) * sin(radians((location->>'lat')::double precision))) < ${radius}`
-        ),
-        limit: 10,
       });
 
       // restaurants = await Restaurant.findAll({
@@ -64,7 +50,32 @@ router.get("/", async (req, res) => {
       //   ),
       // });
     } else {
-      restaurants = await Restaurant.findAll();
+      const { lat, lng, radius } = req.query;
+
+      console.log({ lat, lng, radius });
+
+      if (lat != null && lng != null && radius != null) {
+        // restaurants = await Restaurant.findAll();
+
+        restaurants = await Restaurant.findAll({
+          attributes: {
+            include: [
+              [
+                sequelize.literal(
+                  `6371 * acos(cos(radians(${lat})) * cos(radians((location->>'lat')::double precision)) * cos(radians(${lng}) - radians((location->>'lng')::double precision)) + sin(radians(${lat})) * sin(radians((location->>'lat')::double precision)))`
+                ),
+                "distance",
+              ],
+            ],
+          },
+          order: sequelize.col("distance"),
+          group: ["Restaurant.id"], // Ensure to group by primary key or unique identifier
+          having: sequelize.literal(
+            `6371 * acos(cos(radians(${lat})) * cos(radians((location->>'lat')::double precision)) * cos(radians(${lng}) - radians((location->>'lng')::double precision)) + sin(radians(${lat})) * sin(radians((location->>'lat')::double precision))) < ${radius}`
+          ),
+          limit: 10,
+        });
+      }
     }
     res.json(restaurants);
   } catch (error) {
@@ -91,18 +102,24 @@ router.get("/:id", async (req, res) => {
 });
 
 // POST Create a New Restaurant
-router.post("/", async (req, res) => {
-  try {
-    // console.log({ body: (req.body) });
-    req.body.location = JSON.parse(req.body.location);
-    req.body.images = JSON.parse(req.body.images);
-    req.body.cousine = JSON.parse(req.body.cousine);
+router.post("/", authenticate, async (req, res) => {
+  if (req.user?.isManager) {
+    try {
+      // console.log({ body: (req.body) });
+      req.body.location = JSON.parse(req.body.location);
+      req.body.images = JSON.parse(req.body.images);
+      req.body.cousine = JSON.parse(req.body.cousine);
 
-    let restaurant = await Restaurant.create(req.body);
-    res.status(201).json(restaurant);
-  } catch (error) {
-    console.error("Error creating restaurant:", error);
-    res.status(400).json({ message: "Failed to create restaurant" });
+      let restaurant = await Restaurant.create(req.body);
+      res.status(201).json(restaurant);
+    } catch (error) {
+      console.error("Error creating restaurant:", error);
+      res.status(400).json({ message: "Failed to create restaurant" });
+    }
+  } else {
+    res
+      .status(401)
+      .json({ message: "You are not authorized to add a restaurant" });
   }
 });
 
@@ -157,7 +174,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-router.use("/:restaurant_id/tables", tablesRouter);
-router.use("/:restaurant_id/menu", menuRouter);
+router.use("/:restaurant_id/tables", authenticate, tablesRouter);
+router.use("/:restaurant_id/menu", authenticate, menuRouter);
 
 export default router;

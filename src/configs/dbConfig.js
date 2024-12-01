@@ -18,6 +18,9 @@ export let Rating = RatingModel(sequelize);
 export let Booking = BookingModel(sequelize);
 export let Tables = TablesModel(sequelize);
 
+User.hasMany(Restaurant);
+Restaurant.belongsTo(User);
+
 Restaurant.hasMany(Menu);
 Menu.belongsTo(Restaurant);
 
