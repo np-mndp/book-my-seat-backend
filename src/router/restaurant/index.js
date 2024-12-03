@@ -105,10 +105,7 @@ router.get("/:id", async (req, res) => {
 router.post("/", authenticate, async (req, res) => {
   if (req.user?.isManager) {
     try {
-      // console.log({ body: (req.body) });
-      req.body.location = JSON.parse(req.body.location);
-      req.body.images = JSON.parse(req.body.images);
-      req.body.cousine = JSON.parse(req.body.cousine);
+      req.body.UserId = req.user.id;
 
       let restaurant = await Restaurant.create(req.body);
       res.status(201).json(restaurant);

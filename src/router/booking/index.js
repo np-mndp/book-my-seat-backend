@@ -6,7 +6,7 @@ import { Op, where } from "sequelize";
 let router = express.Router({ mergeParams: true });
 
 router.get("/", authenticate, async (req, res) => {
-  let bookings;
+  let pastBookings, bookings;
   try {
     if (req.user?.isManager) {
       bookings = await Booking.findAll({
@@ -23,6 +23,28 @@ router.get("/", authenticate, async (req, res) => {
             },
           },
         },
+        where: {
+          loadIn: { [Op.gt]: Date.now() },
+        },
+      });
+
+      pastBookings = await Booking.findAll({
+        include: {
+          model: Restaurant,
+          attributes: ["title", "images"],
+          required: true,
+          include: {
+            model: User,
+            attributes: ["name"],
+            required: true,
+            where: {
+              id: req.user.id,
+            },
+          },
+        },
+        where: {
+          loadIn: { [Op.lt]: Date.now() },
+        },
       });
 
       // bookings.forEach((booking) => {
@@ -34,9 +56,23 @@ router.get("/", authenticate, async (req, res) => {
       // console.log(bookings);
     } else {
       let userId = req.user.id;
+      pastBookings = await Booking.findAll({
+        where: {
+          UserId: userId,
+          loadIn: { [Op.lt]: Date.now() },
+        },
+        include: [
+          {
+            model: Restaurant,
+            // as: 'restaurant',
+            attributes: ["id", "title", "location", "images"],
+          },
+        ],
+      });
       bookings = await Booking.findAll({
         where: {
           UserId: userId,
+          loadIn: { [Op.gt]: Date.now() },
         },
         include: [
           {
@@ -48,7 +84,7 @@ router.get("/", authenticate, async (req, res) => {
       });
     }
 
-    return res.json(bookings);
+    return res.json({bookings, pastBookings});
   } catch (error) {
     console.log(error);
   }
