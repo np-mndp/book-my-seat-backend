@@ -1,12 +1,13 @@
 import express from "express";
 import { Booking, Restaurant, Tables, User } from "../../configs/dbConfig.js";
-import { authenticate } from "../../middleware/auth.js";
+import { authenticate, isAuthenticated } from "../../middleware/auth.js";
 import { Op, where } from "sequelize";
 
 let router = express.Router({ mergeParams: true });
 
 router.get("/", authenticate, async (req, res) => {
-  let pastBookings, bookings;
+  let pastBookings, bookings, lastMonthCount, totalCount;
+  const monthAgo = new Date().setMonth(new Date().getMonth() - 1);
   try {
     if (req.user?.isManager) {
       bookings = await Booking.findAll({
@@ -84,7 +85,8 @@ router.get("/", authenticate, async (req, res) => {
       });
     }
 
-    return res.json({bookings, pastBookings});
+    const totalCount = pastBookings.length + bookings.length;
+    return res.json({ bookings, pastBookings, totalCount });
   } catch (error) {
     console.log(error);
   }

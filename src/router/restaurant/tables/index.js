@@ -24,19 +24,27 @@ router.post("/", async (req, res) => {
   try {
     let { restaurant_id } = req.params;
     let { tables } = req.body;
-    const managerId = Restaurant.findOne({
+    console.log(req.body);
+    
+    const managerId = await Restaurant.findOne({
       where: {
         id: req.params.restaurant_id,
       },
-      attributes: ["ManagerId"],
+      attributes: ["UserId"],
     });
-    if (req.user?.isManager) {
-      const updatedTables = tables.map((table) => ({
+
+    if (req.user?.isManager && req.user.id === managerId.UserId) {
+      const updatedTables = await tables.map((table) => ({
         ...table,
         RestaurantId: restaurant_id,
       }));
 
+      console.log(updatedTables);
+      
       let newTable = await Tables.bulkCreate(updatedTables);
+
+      console.log(newTable);
+      
 
       res.status(201).json(newTable);
     } else {
